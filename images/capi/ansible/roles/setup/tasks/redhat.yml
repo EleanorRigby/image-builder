@@ -12,6 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ---
+- name: RHEL subscription
+  redhat_subscription:
+    state: present
+    username: "{{ lookup('env', 'RHSM_USER') }}"
+    password: "{{ lookup('env', 'RHSM_PASS') }}"
+    auto_attach: true
+  when: ansible_distribution == "RedHat"
+
+# EPEL is needed even on RHEL for python2-pip
+# An alternative could be to use SCL, but going the simpler route for now.
 - name: add epel repo
   yum:
     name: "{{ redhat_epel_rpm }}"
@@ -38,3 +48,22 @@
     name: "{{ extra_rpms.split() }}"
     state: present
     lock_timeout: 60
+
+- name: set EPEL repo location
+  set_fact:
+    epel_repo_file: /etc/yum.repos.d/epel.repo
+  when: not disable_public_repos|bool
+
+- name: set EPEL repo location
+  set_fact:
+    epel_repo_file: /etc/yum.repos.d/epel.repo.disabled
+  when: disable_public_repos|bool
+
+# EPEL should not be left enabled for RHEL
+- name: disable EPEL repo on RHEL
+  ini_file:
+    path: "{{ epel_repo_file }}"
+    section: epel
+    option: enabled
+    value: "0"
+  when: ansible_distribution == "RedHat"

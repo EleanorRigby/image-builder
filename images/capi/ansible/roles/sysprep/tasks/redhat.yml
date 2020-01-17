@@ -19,6 +19,19 @@
 
 - import_tasks: rpm_repos.yml
 
+- name: Remove RHEL subscription
+  block:
+    - name: Remove subscriptions
+      rhsm_repository:
+        name: '*'
+        state: absent
+    - name: Unregister system
+      redhat_subscription:
+        state: absent
+    - name: clean local subscription data
+      command: subscription-manager clean
+  when: ansible_distribution == "RedHat"
+
 - name: Remove yum package caches
   yum:
     autoremove: yes
