@@ -64,6 +64,21 @@
     state: absent
   when: ansible_os_family == "VMware Photon OS"
 
+- name: Make sure all cloud init services are enabled and running
+  service:
+    name: "{{ item }}"
+    state: started
+    enabled: yes
+  with_items:
+    - cloud-final
+    - cloud-config
+    - cloud-init
+    - cloud-init-local
+  when: ansible_os_family == "RedHat"
+  register: cloud_init_enabled
+  until: cloud_init_enabled is not failed
+  retries: 5
+
 #- name: Unlock password
 #  replace:
 #    path: /etc/cloud/cloud.cfg
