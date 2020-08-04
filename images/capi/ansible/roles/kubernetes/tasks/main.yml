@@ -44,3 +44,23 @@
 
 - import_tasks: ecrpull.yml
   when: kubernetes_source_type != "http" and ecr == true
+
+- name: Creates unit file directory
+  file:
+    path: /etc/systemd/system/cloud-final.service.d
+    state: directory
+
+- name: Create cloud-final boot order drop in file
+  template:
+    dest: /etc/systemd/system/cloud-final.service.d/boot-order.conf
+    src: etc/systemd/system/cloud-final.service.d/boot-order.conf
+
+- name: Creates unit file directory
+  file:
+    path: /etc/systemd/system/cloud-config.service.d
+    state: directory
+
+- name: Create cloud-final boot order drop in file
+  template:
+    dest: /etc/systemd/system/cloud-config.service.d/boot-order.conf
+    src: etc/systemd/system/cloud-config.service.d/boot-order.conf
