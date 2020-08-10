@@ -48,22 +48,3 @@
     name: "{{ extra_rpms.split() }}"
     state: present
     lock_timeout: 60
-
-- name: set EPEL repo location
-  set_fact:
-    epel_repo_file: /etc/yum.repos.d/epel.repo
-  when: not disable_public_repos|bool
-
-- name: set EPEL repo location
-  set_fact:
-    epel_repo_file: /etc/yum.repos.d/epel.repo.disabled
-  when: disable_public_repos|bool
-
-# EPEL should not be left enabled for RHEL
-- name: disable EPEL repo on RHEL
-  ini_file:
-    path: "{{ epel_repo_file }}"
-    section: epel
-    option: enabled
-    value: "0"
-  when: ansible_distribution == "RedHat"

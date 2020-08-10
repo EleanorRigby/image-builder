@@ -19,6 +19,25 @@
 
 - import_tasks: rpm_repos.yml
 
+- name: set EPEL repo location
+  set_fact:
+    epel_repo_file: /etc/yum.repos.d/epel.repo
+  when: not disable_public_repos|bool
+
+- name: set EPEL repo location
+  set_fact:
+    epel_repo_file: /etc/yum.repos.d/epel.repo.disabled
+  when: disable_public_repos|bool
+
+# EPEL should not be left enabled for RHEL
+- name: disable EPEL repo on RHEL
+  ini_file:
+    path: "{{ epel_repo_file }}"
+    section: epel
+    option: enabled
+    value: "0"
+  when: ansible_distribution == "RedHat"
+
 - name: Remove RHEL subscription
   block:
     - name: Remove subscriptions
